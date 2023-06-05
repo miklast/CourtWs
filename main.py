@@ -57,6 +57,13 @@ async def on_ready():
 async def add_team(interaction: discord.Interaction, team_number: int):
     #Add a team to the court W's
 
+    print(f"LOGGING: Court team add attemped, team {team_number} added by {interaction.user}")
+
+    if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+        print("ryan is banned from the bot until i say otherwise")
+        await interaction.followup.send("Ryan is banned from the bot")
+        return
+
     with open('courtTeams.txt', 'r') as outfile:
         lines = outfile.readlines()
         for i in lines:
@@ -64,8 +71,8 @@ async def add_team(interaction: discord.Interaction, team_number: int):
                 await interaction.response.send_message(f'Team {str(team_number)} is already listed as a court team!')
                 return
 
-    with open('courtTeams.txt', 'a') as outfile:        
-        outfile.write(str(team_number) + "\n")
+    #with open('courtTeams.txt', 'a') as outfile:        
+        #outfile.write(str(team_number) + "\n")
 
 
     await interaction.response.send_message(f'team {str(team_number)} has been added!')
@@ -78,6 +85,13 @@ async def add_team(interaction: discord.Interaction, team_number: int):
 )
 async def tba_lookup(interaction: discord.Interaction, team_number: int):
     #Grabs basic TBA info about a team.
+
+    print(f"LOGGING: TBA Lookup invoked, team {team_number} searched by {interaction.user}")
+
+    if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+        print("ryan is banned from the bot until i say otherwise")
+        await interaction.followup.send("Ryan is banned from the bot")
+        return
 
     teamInfo = getTBA("team/frc" + str(team_number) + "/simple")
 
@@ -92,10 +106,6 @@ async def tba_lookup(interaction: discord.Interaction, team_number: int):
     await interaction.response.send_message(embed = my_embed)
 
 
-
-    #await interaction.response.send_message(f'Team {teamInfo["team_number"]}, {teamInfo["nickname"]}, from {teamInfo["city"]}, {teamInfo["state_prov"]}.')
-
-
 @client.tree.command()
 @app_commands.describe(
     team_number='the court team you are looking up',
@@ -103,6 +113,13 @@ async def tba_lookup(interaction: discord.Interaction, team_number: int):
 )
 async def court_tinfo(interaction: discord.Interaction, team_number: int):
     #Grabs TBA info about A court team. Will include extra info such as next match and W's.
+
+    print(f"LOGGING: court team info invoked, team {team_number} searched by {interaction.user}")
+
+    if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+        print("ryan is banned from the bot until i say otherwise")
+        await interaction.followup.send("Ryan is banned from the bot")
+        return
 
     with open('courtTeams.txt', 'r') as outfile:
         lines = outfile.readlines()
@@ -123,7 +140,6 @@ async def court_tinfo(interaction: discord.Interaction, team_number: int):
                 return
         await interaction.response.send_message(f'Team {str(team_number)} is not a court team!')
 
-    #await interaction.response.send_message(f'Team {teamInfo["team_number"]}, {teamInfo["nickname"]}, from {teamInfo["city"]}, {teamInfo["state_prov"]}.')
 
 
 @client.tree.command()
@@ -134,6 +150,13 @@ async def court_tinfo(interaction: discord.Interaction, team_number: int):
 async def court_team_ws(interaction: discord.Interaction, team_number: int):
     #Counts up all W's earned by a specific team in the court during the current season.
 
+    print(f"LOGGING: court team W's invoked, court team {team_number} searched by {interaction.user}")
+
+    if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+        print("ryan is banned from the bot until i say otherwise")
+        await interaction.followup.send("Ryan is banned from the bot")
+        return
+
     teamInfo = getTBA("team/frc" + str(team_number) + "/awards")
     wins = 0
     finalist = 0
@@ -141,7 +164,6 @@ async def court_team_ws(interaction: discord.Interaction, team_number: int):
     awards = 0
 
     for i in teamInfo:
-        #print(i['award_type'])
 
         if(i['award_type'] == 0 or i['award_type'] == 9) :
             culture+=1
@@ -152,7 +174,7 @@ async def court_team_ws(interaction: discord.Interaction, team_number: int):
         else:
             awards+=1
 
-    my_embed = discord.Embed(title=f"{str(team_number)}'s W's")
+    my_embed = discord.Embed(title=f"{str(team_number)}'s historical W's")
     my_embed.set_thumbnail(url='https://frcavatars.herokuapp.com/get_image?team='+str(team_number))
     my_embed.add_field(name="Wins", value=str(wins), inline=True)
     my_embed.add_field(name="finaLists", value=str(finalist), inline=True)
@@ -168,15 +190,98 @@ async def court_team_ws(interaction: discord.Interaction, team_number: int):
 async def court_total_ws(interaction: discord.Interaction):
     "Counts up all W's earned by the court during the current season."
 
-    my_embed = discord.Embed(title="Court W's")
+    await interaction.response.defer()
+    
+    if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+        print("ryan is banned from the bot until i say otherwise")
+        await interaction.followup.send("Ryan is banned from the bot")
+        return
+    
+    wins = 0
+    finalist = 0
+    culture = 0
+    awards = 0
+    
+    with open('courtTeams.txt', 'r') as outfile:
+        lines = outfile.readlines()
+        for i in lines:
+            i=str(i).strip('\n') 
+    
+            teamInfo = getTBA("team/frc" + str(i) + "/awards")
+
+            for i in teamInfo:
+
+                if(i['award_type'] == 0 or i['award_type'] == 9) :
+                    culture+=1
+                elif(i['award_type'] == 1):
+                    wins+=1
+                elif(i['award_type'] == 2): 
+                    finalist+=1
+                else:
+                    awards+=1
+
+    my_embed = discord.Embed(title="Court historical W's")
     # todo: figure out if theres a better way to do thumbnail
     my_embed.set_thumbnail(url='https://i.imgur.com/BueDGHx.png')
-    my_embed.add_field(name="Wins", value="test", inline=True)
-    my_embed.add_field(name="finaLists", value="test", inline=True)
-    my_embed.add_field(name="aWards", value="test", inline=True)
+    my_embed.add_field(name="Wins", value=wins, inline=True)
+    my_embed.add_field(name="finaLists", value=finalist, inline=True)
+    my_embed.add_field(name="aWards", value=awards, inline=True)
 
 
-    await interaction.response.send_message(embed = my_embed)
+    await interaction.followup.send(embed = my_embed)
+
+
+@client.tree.command()
+async def court_year_ws(interaction: discord.Interaction, year: int):
+    "Counts up all W's earned by the court during the current season."
+
+    await interaction.response.defer()
+    
+    if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+        print("ryan is banned from the bot until i say otherwise")
+        await interaction.followup.send("Ryan is banned from the bot")
+        return
+    
+    if int(year) < 1992 or int(year) > 2023:
+        print("invalid year asked")
+        await interaction.followup.send(f"{year} is not a valid FRC season")
+        return
+    
+    wins = 0
+    finalist = 0
+    culture = 0
+    awards = 0
+    
+    with open('courtTeams.txt', 'r') as outfile:
+        lines = outfile.readlines()
+        for i in lines:
+            i=str(i).strip('\n') 
+            teamInfo = getTBA("team/frc" + str(i) + "/awards/" + str(year))
+
+            for i in teamInfo:
+
+
+                if(i['award_type'] == 0) :
+                    print(f"{i['award_type']} Culture")
+                    wins+=1
+                elif(i['award_type'] == 1):
+                    print(f"{i['award_type']} win")
+                    wins+=1
+                elif(i['award_type'] == 2): 
+                    finalist+=1
+                else:
+                    awards+=1
+
+    my_embed = discord.Embed(title=f"Court W's for {year}")
+    # todo: figure out if theres a better way to do thumbnail
+    my_embed.set_thumbnail(url='https://i.imgur.com/BueDGHx.png')
+    my_embed.add_field(name="Wins", value=wins, inline=True)
+    my_embed.add_field(name="finaLists", value=finalist, inline=True)
+    my_embed.add_field(name="aWards", value=awards, inline=True)
+
+
+    await interaction.followup.send(embed = my_embed)
+
 
 @client.tree.command()
 @app_commands.describe(
@@ -185,100 +290,107 @@ async def court_total_ws(interaction: discord.Interaction):
 )
 async def nextmatch_team(interaction: discord.Interaction, team_number: int):
     "Shows roughly how long until the next match is for a team."
+    try:
+        print(f"LOGGING: next match invoked, team {team_number} searched by {interaction.user}")
+        await interaction.response.defer()
 
-    teamInfo = getTBA("team/frc" + str(team_number) + "/matches/2023/simple")
-    getKeys = getTBA("team/frc" + str(team_number) + "/events/2023/simple")
-
-    for i in getKeys:
-        print(str(i["key"]))
-        if(str(i["key"]) == "2023arc" or str(i["key"]) =="2023cur" or str(i["key"]) == "2023dal" or str(i["key"]) == "2023gal" 
-        or str(i["key"]) ==  "2023hop" or str(i["key"]) == "2023joh" or str(i["key"]) == "2023mil" or str(i["key"]) == "2023new"):
-            code = i["key"]
-            print("correct" + code)
-            break
+        if str(interaction.user) == "firecrafty#1018": #firecrafty#1018
+            print("ryan is banned from the bot until i say otherwise")
+            await interaction.followup.send("Ryan is banned from the bot")
+            return
 
 
-    exactTeamInfo = getTBA("team/frc" + str(team_number) + "/event/" + str(code) + "/matches/simple")
-    matchGet = getTBA("event/" + str(code) + "/insights")
-    nextMatchGet = getTBA("team/frc" + str(team_number) + "/event/" + str(code) + "/status")
-    nextMatch = nextMatchGet["next_match_key"]
-    currentMatch = int(matchGet["qual"]["activation_bonus_rp"][1])/2
-    print(nextMatch)
-    timeBetween = int(nextMatch[-2:])-int(currentMatch)
-    currentUnixTime = time.time()
-    print(str(teamInfo[0]["match_number"]))
+        #teamInfo = getTBA("team/frc" + str(team_number) + "/matches/2023/simple")
 
-    for i in exactTeamInfo:
-         if(int(i["match_number"]) == int(nextMatch[-2:])):
-             print(str(i["predicted_time"]) + " dfsf " + str(i["match_number"])) 
-             timeTillMatch = (i["predicted_time"] - time.time())/60
+        getKeys = getTBA("team/frc" + str(team_number) + "/events/2023/simple")
+        timeTillMatch = 0
 
-    await interaction.response.send_message(f"Team {str(team_number)} 's next match is in **{int(timeTillMatch)} minutes** (QM{nextMatch[-2:]})")
+        for i in getKeys:
+            #print(str(i["key"]))
+            if(str(i["key"]) == "2023arc" or str(i["key"]) =="2023cur" or str(i["key"]) == "2023dal" or str(i["key"]) == "2023gal" 
+            or str(i["key"]) ==  "2023hop" or str(i["key"]) == "2023joh" or str(i["key"]) == "2023mil" or str(i["key"]) == "2023new" or str(i["key"]) =="2023cmptx"):
+                code = i["key"]
+                #print("correct" + code)
+                break
 
 
+        exactTeamInfo = getTBA("team/frc" + str(team_number) + "/event/" + str(code) + "/matches/simple")
+        # matchGet = getTBA("event/" + str(code) + "/insights")
+        nextMatchGet = getTBA("team/frc" + str(team_number) + "/event/" + str(code) + "/status")
+        nextMatch = nextMatchGet["next_match_key"]
 
-# The rename decorator allows us to change the display of the parameter on Discord.
-# In this example, even though we use `text_to_send` in the code, the client will use `text` instead.
-# Note that other decorators will still refer to it as `text_to_send` in the code.
-@client.tree.command()
-@app_commands.rename(text_to_send='text')
-@app_commands.describe(text_to_send='Text to send in the current channel')
-async def send(interaction: discord.Interaction, text_to_send: str):
-    """Sends the text into the current channel."""
-    await interaction.response.send_message(text_to_send)
+        ######
+        #QUALS
+        ######
+          
+        if nextMatchGet == "qm":
+            # currentMatch = int(matchGet["qual"]["activation_bonus_rp"][1])/2
+            print(f"next match: {nextMatch}")
 
+            for i in exactTeamInfo:
+                if(int(i["match_number"]) == int(nextMatch[10:])):
+                    timeTillMatch = (i["predicted_time"] - time.time())/60
+                    blueAlliance = str(i["alliances"]["blue"]["team_keys"]).translate({ord(i): None for i in "frc'[]"})
+                    redAlliance = str(i["alliances"]["red"]["team_keys"]).translate({ord(i): None for i in "frc'[]"})
 
-# To make an argument optional, you can either give it a supported default argument
-# or you can mark it as Optional from the typing standard library. This example does both.
-@client.tree.command()
-@app_commands.describe(member='The member you want to get the joined date from; defaults to the user who uses the command')
-async def joined(interaction: discord.Interaction, member: Optional[discord.Member] = None):
-    """Says when a member joined."""
-    # If no member is explicitly provided then we use the command user here
-    member = member or interaction.user
-
-    # The format_dt function formats the date time into a human readable representation in the official client
-    await interaction.response.send_message(f'{member} joined {discord.utils.format_dt(member.joined_at)}')
-
-
-# A Context Menu command is an app command that can be run on a member or on a message by
-# accessing a menu within the client, usually via right clicking.
-# It always takes an interaction as its first parameter and a Member or Message as its second parameter.
-
-# This context menu command only works on members
-@client.tree.context_menu(name='Show Join Date')
-async def show_join_date(interaction: discord.Interaction, member: discord.Member):
-    # The format_dt function formats the date time into a human readable representation in the official client
-    await interaction.response.send_message(f'{member} joined at {discord.utils.format_dt(member.joined_at)}')
-
-# TBA Testing
-# @client.tree.context_menu(name='Team Info')
-# async def show_team_info(interaction: discord.Interaction, member: discord.Member):
-#     # The format_dt function formats the date time into a human readable representation in the official client
-#     await interaction.response.send_message(f'{getTBA("team/frc7461/simple")}')
+                    if str(team_number) in blueAlliance:
+                        blueAlliance = blueAlliance.replace(f"{str(team_number)}", f"**{str(team_number)}**")
+                        embed_color = 40151
+                    else:
+                        redAlliance = redAlliance.replace(f"{str(team_number)}", f"**{str(team_number)}**")
+                        embed_color = 15539236
 
 
-# This context menu command only works on messages
-@client.tree.context_menu(name='Report to Moderators')
-async def report_message(interaction: discord.Interaction, message: discord.Message):
-    # We're sending this response message with ephemeral=True, so only the command executor can see it
-    await interaction.response.send_message(
-        f'Thanks for reporting this message by {message.author.mention} to our moderators.', ephemeral=True
-    )
+            my_embed = discord.Embed(title=f"Team {team_number}'s next match is in {int(timeTillMatch)} minutes", description=f"next match: **{nextMatch[8:]}**", color=int(embed_color))
+            my_embed.add_field(name="Red alliance", value=redAlliance)
+            my_embed.add_field(name="Blue alliance", value=blueAlliance)
+            my_embed.set_thumbnail(url='https://frcavatars.herokuapp.com/get_image?team='+str(team_number))
 
-    # Handle report by sending it into a log channel
-    log_channel = interaction.guild.get_channel()  # replace with your channel id
 
-    embed = discord.Embed(title='Reported Message')
-    if message.content:
-        embed.description = message.content
+            #await interaction.followup.send(f"Team {str(team_number)} 's next match is in **{int(timeTillMatch)} minutes** (QM{nextMatch[10:]})")
+            await interaction.followup.send(embed = my_embed)
 
-    embed.set_author(name=message.author.display_name, icon_url=message.author.display_avatar.url)
-    embed.timestamp = message.created_at
+        ######
+        #ELIMS
+        ######
 
-    url_view = discord.ui.View()
-    url_view.add_item(discord.ui.Button(label='Go to Message', style=discord.ButtonStyle.url, url=message.jump_url))
+        else:
+            print(f"elims found: {nextMatch}")
 
-    await log_channel.send(embed=embed, view=url_view)
+            for i in exactTeamInfo:
+                if(str(i["key"])[8:] == str(nextMatch[8:])):
+                    timeTillMatch = (i["predicted_time"] - time.time())/60
+                    blueAlliance = str(i["alliances"]["blue"]["team_keys"]).translate({ord(i): None for i in "frc'[]"})
+                    redAlliance = str(i["alliances"]["red"]["team_keys"]).translate({ord(i): None for i in "frc'[]"})
+                    
+
+                    if str(team_number) in blueAlliance:
+                        blueAlliance = blueAlliance.replace(f"{str(team_number)}", f"**{str(team_number)}**")
+                        embed_color= 40151
+                    else:
+                        redAlliance = redAlliance.replace(f"{str(team_number)}", f"**{str(team_number)}**")
+                        embed_color=15539236
+
+
+            if int(timeTillMatch) < 0:
+                my_embed = discord.Embed(title=f"Team {team_number}'s next match started {abs(int(timeTillMatch))} minutes ago", description=f"next match: **{nextMatch[8:]}**", color=int(embed_color))
+            else:
+                my_embed = discord.Embed(title=f"Team {team_number}'s next match is in {int(timeTillMatch)} minutes", description=f"next match: **{nextMatch[8:]}**", color=int(embed_color))
+            my_embed.add_field(name="Red alliance", value=redAlliance)
+            my_embed.add_field(name="Blue alliance", value=blueAlliance)
+            my_embed.set_thumbnail(url='https://frcavatars.herokuapp.com/get_image?team='+str(team_number))
+
+
+            #await interaction.followup.send(f"Team {str(team_number)} 's next match is in **{int(timeTillMatch)} minutes** (QM{nextMatch[10:]})")
+            await interaction.followup.send(embed = my_embed)
+
+    ######
+    #ERROR
+    ######
+
+    except Exception as e: 
+        print(e)
+        print(f"LOGGING: lol {interaction.user} really tried looking up {team_number} but they dont have any matches")
+        await interaction.followup.send(f"Team {team_number} is not playing this weekend!")
 
 client.run('')
